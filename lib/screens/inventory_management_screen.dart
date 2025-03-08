@@ -29,7 +29,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
               controller: nameController,
               decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
             ),
-            const SizedBox(height: 10.0), // Spacing between fields
+            const SizedBox(height: 10.0),
             TextField(
               controller: priceController,
               decoration: const InputDecoration(labelText: 'Price', border: OutlineInputBorder()),
@@ -100,7 +100,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                 });
               },
             ),
-            const SizedBox(height: 16.0), // Spacing after search bar
+            const SizedBox(height: 16.0),
             Row(
               children: [
                 Expanded(
@@ -109,7 +109,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                     decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
                   ),
                 ),
-                const SizedBox(width: 10.0), // Spacing between fields
+                const SizedBox(width: 10.0),
                 Expanded(
                   child: TextField(
                     controller: priceController,
@@ -155,7 +155,10 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                         priceController.clear();
                         stockController.clear();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Product added successfully')),
+                          const SnackBar(
+                            content: Text('Product added successfully'),
+                            duration: Duration(seconds: 2),
+                          ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -172,7 +175,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16.0), // Spacing before table
+            const SizedBox(height: 16.0),
             Expanded(
               child: Consumer<InventoryProvider>(
                 builder: (context, provider, child) {

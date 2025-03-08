@@ -156,20 +156,41 @@ class DatabaseService {
       ORDER BY quantity DESC
       LIMIT 5
     ''');
-    print('Top Selling Products: $result'); // Debug log
+    print('Top Selling Products: $result');
     return result;
   }
 
   Future<Map<String, dynamic>> getSettings() async {
     final db = await database;
-    final result = await db.query('settings', limit: 1);
-    print('Fetched settings: $result');
-    if (result.isEmpty) {
+    try {
+      final result = await db.query('settings', limit: 1);
+      print('Fetched settings: $result');
+      if (result.isEmpty) {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cash_enabled INTEGER DEFAULT 1,
+            card_enabled INTEGER DEFAULT 0
+          )
+        ''');
+        await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
+        print('Created settings table and inserted default data');
+        return {'cash_enabled': 1, 'card_enabled': 0};
+      }
+      return result.first;
+    } catch (e) {
+      print('Error fetching settings, creating table: $e');
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS settings (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          cash_enabled INTEGER DEFAULT 1,
+          card_enabled INTEGER DEFAULT 0
+        )
+      ''');
       await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
-      print('Inserted default settings');
+      print('Created settings table and inserted default data after error');
       return {'cash_enabled': 1, 'card_enabled': 0};
     }
-    return result.first;
   }
 
   Future<void> updateSettings(bool cashEnabled, bool cardEnabled) async {
