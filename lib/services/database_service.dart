@@ -20,12 +20,12 @@ class DatabaseService {
   Future<sqflite.Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'ukay_ukay.db');
-    print('Database path: $path'); // Debug log
+    print('Database path: $path');
     return await sqflite.openDatabase(
       path,
       version: 1,
       onCreate: (db, version) async {
-        print('Creating database tables...'); // Debug log
+        print('Creating database tables...');
         await db.execute('''
           CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +71,7 @@ class DatabaseService {
         await db.insert('products', {'name': 'Shirt', 'price': 50.0, 'stock': 10});
         await db.insert('products', {'name': 'Pants', 'price': 100.0, 'stock': 5});
         await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
-        print('Database initialized with default data'); // Debug log
+        print('Database initialized with default data');
       },
     );
   }
@@ -149,23 +149,24 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getTopSellingProducts() async {
     final db = await database;
     final result = await db.rawQuery('''
-      SELECT p.name, SUM(ti.quantity) as quantity
+      SELECT p.name, SUM(ti.quantity) as quantity, SUM(ti.quantity * ti.price) as total_sales
       FROM transaction_items ti
       JOIN products p ON ti.product_id = p.id
       GROUP BY p.id, p.name
       ORDER BY quantity DESC
       LIMIT 5
     ''');
+    print('Top Selling Products: $result'); // Debug log
     return result;
   }
 
   Future<Map<String, dynamic>> getSettings() async {
     final db = await database;
     final result = await db.query('settings', limit: 1);
-    print('Fetched settings: $result'); // Debug log
+    print('Fetched settings: $result');
     if (result.isEmpty) {
       await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
-      print('Inserted default settings'); // Debug log
+      print('Inserted default settings');
       return {'cash_enabled': 1, 'card_enabled': 0};
     }
     return result.first;
@@ -177,18 +178,17 @@ class DatabaseService {
     final data = {'cash_enabled': cashEnabled ? 1 : 0, 'card_enabled': cardEnabled ? 1 : 0};
     if (existingSettings.isEmpty) {
       await db.insert('settings', data);
-      print('Inserted settings: $data'); // Debug log
+      print('Inserted settings: $data');
     } else {
       await db.update(
         'settings',
         data,
         where: 'id = ?',
-        whereArgs: [existingSettings.first['id']], // Use existing ID
+        whereArgs: [existingSettings.first['id']],
       );
-      print('Updated settings: $data'); // Debug log
+      print('Updated settings: $data');
     }
-    // Verify update
     final updatedSettings = await db.query('settings', limit: 1);
-    print('Settings after update: $updatedSettings'); // Debug log
+    print('Settings after update: $updatedSettings');
   }
 }

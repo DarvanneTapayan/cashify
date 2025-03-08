@@ -37,7 +37,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: 16.0), // Spacing after dropdown
+                const SizedBox(height: 16.0),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -48,11 +48,13 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                               columns: const [
                                 DataColumn(label: Text('Product')),
                                 DataColumn(label: Text('Quantity Sold')),
+                                DataColumn(label: Text('Total Sales')), // New column
                               ],
                               rows: reportProvider.topSellingProducts
                                   .map((p) => DataRow(cells: [
                                         DataCell(Text(p['name'])),
                                         DataCell(Text(p['quantity'].toString())),
+                                        DataCell(Text('\$${p['total_sales'].toStringAsFixed(2)}')), // Display per product
                                       ]))
                                   .toList(),
                             )
@@ -75,7 +77,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16.0), // Spacing before total
+                const SizedBox(height: 16.0),
                 Text(
                   'Total Sales: \$${reportProvider.totalSales.toStringAsFixed(2)}',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
