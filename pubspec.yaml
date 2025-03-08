@@ -1,0 +1,38 @@
+name: ukay_ukay_cashiering_app
+description: "A Flutter-based desktop cashiering application for Ukay-Ukay stores."
+publish_to: 'none' # Prevents accidental publishing to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0 # Matches your current SDK constraint
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sqflite: ^2.3.0          # SQLite database support
+  sqflite_common_ffi: ^2.3.0  # FFI support for desktop SQLite
+  path: ^1.8.3            # Path manipulation
+  path_provider: ^2.0.11  # Directory access for database storage
+  provider: ^6.1.1        # State management
+  pdf: ^3.10.8           # PDF generation for receipts
+  printing: ^5.12.0      # Printing and PDF sharing
+  cupertino_icons: ^1.0.8 # Cupertino icons (optional, kept from default)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0   # Recommended lints for code quality
+
+flutter:
+  uses-material-design: true # Enables Material icons
+
+  # Uncomment and configure assets if needed
+  # assets:
+  #   - images/logo.png
+
+  # Uncomment and configure fonts if needed
+  # fonts:
+  #   - family: CustomFont
+  #     fonts:
+  #       - asset: fonts/CustomFont-Regular.ttf
