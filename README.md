@@ -1,3 +1,8 @@
+flutter clean
+flutter pub get
+flutter run -d windows
+
+
 # ukay_ukay_cashiering_app
 
 A new Flutter project.
