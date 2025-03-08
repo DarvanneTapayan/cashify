@@ -12,7 +12,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ukay-Ukay Dashboard'),
+        title: const Text('SECURE CASH REGISTER and INVENTORY MANAGEMENT SYSTEM'),
         backgroundColor: Colors.blue,
       ),
       body: Center(
