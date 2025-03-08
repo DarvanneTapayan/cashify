@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/database_service.dart';
 import '../models/product_model.dart';
+import 'inventory_provider.dart';
 
 class TransactionProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
@@ -32,6 +34,7 @@ class TransactionProvider with ChangeNotifier {
     final settings = await _dbService.getSettings();
     _cashEnabled = settings['cash_enabled'] == 1;
     _cardEnabled = settings['card_enabled'] == 1;
+    print('Loaded settings - Cash: $_cashEnabled, Card: $_cardEnabled');
     notifyListeners();
   }
 
@@ -43,13 +46,19 @@ class TransactionProvider with ChangeNotifier {
     await _loadSettings();
   }
 
+  void updateLocalSettings(bool cashEnabled, bool cardEnabled) {
+    _cashEnabled = cashEnabled;
+    _cardEnabled = cardEnabled;
+    notifyListeners();
+  }
+
   bool addToCart(Product product, int quantity) {
     final existingItemIndex = _cart.indexWhere((item) => item['product'].id == product.id);
     final currentQuantity = existingItemIndex >= 0 ? _cart[existingItemIndex]['quantity'] : 0;
     final totalRequestedQuantity = currentQuantity + quantity;
 
     if (totalRequestedQuantity > product.stock) {
-      return false; // Stock exceeded
+      return false;
     }
 
     if (existingItemIndex >= 0) {
@@ -59,7 +68,7 @@ class TransactionProvider with ChangeNotifier {
     }
     _total += product.price * quantity;
     notifyListeners();
-    return true; // Success
+    return true;
   }
 
   void removeFromCart(int index) {
@@ -74,7 +83,7 @@ class TransactionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Map<String, dynamic>> completeTransaction() async {
+  Future<Map<String, dynamic>> completeTransaction(BuildContext context) async {
     if (_cart.isEmpty) return {'transactionId': -1, 'total': 0.0, 'cart': [], 'paymentMethod': _paymentMethod};
 
     final transactionId = await _dbService.insertTransaction(_total, _paymentMethod);
@@ -101,6 +110,10 @@ class TransactionProvider with ChangeNotifier {
     _cart.clear();
     _total = 0.0;
     await _loadProducts();
+    
+    // Refresh InventoryProvider using public method
+    final inventoryProvider = Provider.of<InventoryProvider>(context, listen: false);
+    await inventoryProvider.refreshProducts(); // Updated to use public method
 
     return transactionDetails;
   }

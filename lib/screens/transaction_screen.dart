@@ -24,7 +24,7 @@ class TransactionScreen extends StatelessWidget {
                 Expanded(child: CartReviewWidget()),
                 PaymentProcessingWidget(
                   onComplete: () async {
-                    final transactionDetails = await transactionProvider.completeTransaction();
+                    final transactionDetails = await transactionProvider.completeTransaction(context); // Pass context
                     if (context.mounted && transactionDetails['transactionId'] != -1) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transaction Completed')));
                       showDialog(

@@ -20,10 +20,12 @@ class DatabaseService {
   Future<sqflite.Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'ukay_ukay.db');
+    print('Database path: $path'); // Debug log
     return await sqflite.openDatabase(
       path,
       version: 1,
       onCreate: (db, version) async {
+        print('Creating database tables...'); // Debug log
         await db.execute('''
           CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,6 +71,7 @@ class DatabaseService {
         await db.insert('products', {'name': 'Shirt', 'price': 50.0, 'stock': 10});
         await db.insert('products', {'name': 'Pants', 'price': 100.0, 'stock': 5});
         await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
+        print('Database initialized with default data'); // Debug log
       },
     );
   }
@@ -159,16 +162,33 @@ class DatabaseService {
   Future<Map<String, dynamic>> getSettings() async {
     final db = await database;
     final result = await db.query('settings', limit: 1);
-    return result.isNotEmpty ? result.first : {'cash_enabled': 1, 'card_enabled': 0};
+    print('Fetched settings: $result'); // Debug log
+    if (result.isEmpty) {
+      await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
+      print('Inserted default settings'); // Debug log
+      return {'cash_enabled': 1, 'card_enabled': 0};
+    }
+    return result.first;
   }
 
   Future<void> updateSettings(bool cashEnabled, bool cardEnabled) async {
     final db = await database;
-    await db.update(
-      'settings',
-      {'cash_enabled': cashEnabled ? 1 : 0, 'card_enabled': cardEnabled ? 1 : 0},
-      where: 'id = ?',
-      whereArgs: [1],
-    );
+    final existingSettings = await db.query('settings', limit: 1);
+    final data = {'cash_enabled': cashEnabled ? 1 : 0, 'card_enabled': cardEnabled ? 1 : 0};
+    if (existingSettings.isEmpty) {
+      await db.insert('settings', data);
+      print('Inserted settings: $data'); // Debug log
+    } else {
+      await db.update(
+        'settings',
+        data,
+        where: 'id = ?',
+        whereArgs: [existingSettings.first['id']], // Use existing ID
+      );
+      print('Updated settings: $data'); // Debug log
+    }
+    // Verify update
+    final updatedSettings = await db.query('settings', limit: 1);
+    print('Settings after update: $updatedSettings'); // Debug log
   }
 }

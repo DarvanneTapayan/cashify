@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/inventory_provider.dart';
-import '../widgets/inventory_list_widget.dart';
-import '../models/product_model.dart'; // Add this import
+import '../models/product_model.dart';
 
-class InventoryManagementScreen extends StatelessWidget {
+class InventoryManagementScreen extends StatefulWidget {
   const InventoryManagementScreen({super.key});
+
+  @override
+  _InventoryManagementScreenState createState() => _InventoryManagementScreenState();
+}
+
+class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
+  String _searchQuery = '';
 
   void _showEditDialog(BuildContext context, Product product) {
     final nameController = TextEditingController(text: product.name);
@@ -77,6 +83,21 @@ class InventoryManagementScreen extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search Products',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
@@ -142,55 +163,61 @@ class InventoryManagementScreen extends StatelessWidget {
           ),
           Expanded(
             child: Consumer<InventoryProvider>(
-              builder: (context, provider, child) => SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('Name')),
-                    DataColumn(label: Text('Price')),
-                    DataColumn(label: Text('Stock')),
-                    DataColumn(label: Text('Actions')),
-                  ],
-                  rows: provider.products.map((product) => DataRow(cells: [
-                        DataCell(Text(product.name)),
-                        DataCell(Text(product.price.toStringAsFixed(2))),
-                        DataCell(Text(product.stock.toString())),
-                        DataCell(Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => _showEditDialog(context, product),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Product'),
-                                    content: Text('Are you sure you want to delete ${product.name}?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context, false),
-                                        child: const Text('No'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context, true),
-                                        child: const Text('Yes'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                if (confirm == true) {
-                                  await provider.deleteProduct(product.id, context);
-                                }
-                              },
-                            ),
-                          ],
-                        )),
-                      ])).toList(),
-                ),
-              ),
+              builder: (context, provider, child) {
+                final filteredProducts = provider.products
+                    .where((product) => product.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+                    .toList();
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: const [
+                      DataColumn(label: Text('Name')),
+                      DataColumn(label: Text('Price')),
+                      DataColumn(label: Text('Stock')),
+                      DataColumn(label: Text('Actions')),
+                    ],
+                    rows: filteredProducts.map((product) => DataRow(cells: [
+                          DataCell(Text(product.name)),
+                          DataCell(Text(product.price.toStringAsFixed(2))),
+                          DataCell(Text(product.stock.toString())),
+                          DataCell(Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _showEditDialog(context, product),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Delete Product'),
+                                      content: Text('Are you sure you want to delete ${product.name}?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          child: const Text('No'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          child: const Text('Yes'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    await provider.deleteProduct(product.id, context);
+                                  }
+                                },
+                              ),
+                            ],
+                          )),
+                        ])).toList(),
+                  ),
+                );
+              },
             ),
           ),
         ],

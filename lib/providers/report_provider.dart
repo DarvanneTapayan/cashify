@@ -19,7 +19,7 @@ class ReportProvider with ChangeNotifier {
 
   void setReportType(String type) {
     _selectedReport = type;
-    _loadReport();
+    _loadReport(); // Ensure data reloads when type changes
   }
 
   Future<void> _loadReport() async {
@@ -29,22 +29,29 @@ class ReportProvider with ChangeNotifier {
     switch (_selectedReport) {
       case 'Daily':
         startDate = DateTime(now.year, now.month, now.day);
+        _transactions = await _dbService.getTransactionsByPeriod(startDate, now);
+        _topSellingProducts = []; // Clear top selling for non-top-selling views
         break;
       case 'Weekly':
-        startDate = now.subtract(Duration(days: now.weekday - 1));
+        startDate = now.subtract(Duration(days: now.weekday - 1)); // Start of week (Monday)
+        _transactions = await _dbService.getTransactionsByPeriod(startDate, now);
+        _topSellingProducts = [];
         break;
       case 'Monthly':
-        startDate = DateTime(now.year, now.month, 1);
+        startDate = DateTime(now.year, now.month, 1); // Start of month
+        _transactions = await _dbService.getTransactionsByPeriod(startDate, now);
+        _topSellingProducts = [];
         break;
       case 'Top Selling':
         _topSellingProducts = await _dbService.getTopSellingProducts();
-        notifyListeners();
-        return;
+        _transactions = []; // Clear transactions for top-selling view
+        break;
       default:
         startDate = now;
+        _transactions = await _dbService.getTransactionsByPeriod(startDate, now);
+        _topSellingProducts = [];
     }
 
-    _transactions = await _dbService.getTransactionsByPeriod(startDate, now);
-    notifyListeners();
+    notifyListeners(); // Ensure UI updates after data load
   }
 }

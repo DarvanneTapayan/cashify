@@ -19,17 +19,20 @@ class InventoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> refreshProducts() async { // New public method
+    await _loadProducts();
+  }
+
   Future<bool> addProduct(String name, double price, int stock, BuildContext context) async {
-    // Check for duplicate product by name (case-insensitive)
     if (_products.any((p) => p.name.toLowerCase() == name.toLowerCase())) {
-      return false; // Duplicate found, return false
+      return false;
     }
 
     await _dbService.insertProduct(name, price, stock);
     await _loadProducts();
     final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
     await transactionProvider.refreshProducts();
-    return true; // Success
+    return true;
   }
 
   Future<void> updateProduct(int id, String name, double price, int stock, BuildContext context) async {
