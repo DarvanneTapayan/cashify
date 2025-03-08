@@ -14,30 +14,38 @@ class TransactionScreen extends StatelessWidget {
     final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('New Transaction')),
-      body: Row(
-        children: [
-          Expanded(child: ProductSelectionWidget()),
-          Expanded(
-            child: Column(
-              children: [
-                Expanded(child: CartReviewWidget()),
-                PaymentProcessingWidget(
-                  onComplete: () async {
-                    final transactionDetails = await transactionProvider.completeTransaction(context); // Pass context
-                    if (context.mounted && transactionDetails['transactionId'] != -1) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transaction Completed')));
-                      showDialog(
-                        context: context,
-                        builder: (_) => ReceiptWidget(transactionDetails: transactionDetails),
-                      ).then((_) => Navigator.pop(context));
-                    }
-                  },
-                ),
-              ],
+      appBar: AppBar(
+        title: const Text('New Transaction'),
+        backgroundColor: Colors.blue,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0), // Outer padding
+        child: Row(
+          children: [
+            Expanded(child: ProductSelectionWidget()),
+            const SizedBox(width: 16.0), // Spacing between columns
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(child: CartReviewWidget()),
+                  const SizedBox(height: 16.0), // Spacing before payment widget
+                  PaymentProcessingWidget(
+                    onComplete: () async {
+                      final transactionDetails = await transactionProvider.completeTransaction(context);
+                      if (context.mounted && transactionDetails['transactionId'] != -1) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transaction Completed')));
+                        showDialog(
+                          context: context,
+                          builder: (_) => ReceiptWidget(transactionDetails: transactionDetails),
+                        ).then((_) => Navigator.pop(context));
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

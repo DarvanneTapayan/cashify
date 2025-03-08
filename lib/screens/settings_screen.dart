@@ -9,12 +9,16 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: Colors.blue,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Consumer<TransactionProvider>(
           builder: (context, transactionProvider, child) {
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // Align switches to left
               children: [
                 SwitchListTile(
                   title: const Text('Accept Cash Payments'),
@@ -23,6 +27,7 @@ class SettingsScreen extends StatelessWidget {
                     transactionProvider.updateLocalSettings(value, transactionProvider.cardEnabled);
                   },
                 ),
+                const SizedBox(height: 16.0), // Spacing between switches
                 SwitchListTile(
                   title: const Text('Accept Card Payments'),
                   value: transactionProvider.cardEnabled,
@@ -30,8 +35,15 @@ class SettingsScreen extends StatelessWidget {
                     transactionProvider.updateLocalSettings(transactionProvider.cashEnabled, value);
                   },
                 ),
+                const SizedBox(height: 16.0), // Spacing before button
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                    elevation: 4.0,
+                  ),
                   onPressed: () async {
                     final dbService = DatabaseService();
                     await dbService.updateSettings(
@@ -50,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text('Save', style: TextStyle(color: Colors.white)),
+                  child: const Text('Save', style: TextStyle(fontSize: 16.0)),
                 ),
               ],
             );

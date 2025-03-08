@@ -29,11 +29,13 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
               controller: nameController,
               decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
             ),
+            const SizedBox(height: 10.0), // Spacing between fields
             TextField(
               controller: priceController,
               decoration: const InputDecoration(labelText: 'Price', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 10.0),
             TextField(
               controller: stockController,
               decoration: const InputDecoration(labelText: 'Stock', border: OutlineInputBorder()),
@@ -78,12 +80,15 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     final stockController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Inventory Management')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
+      appBar: AppBar(
+        title: const Text('Inventory Management'),
+        backgroundColor: Colors.blue,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
               decoration: const InputDecoration(
                 labelText: 'Search Products',
                 border: OutlineInputBorder(),
@@ -95,10 +100,8 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                 });
               },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
+            const SizedBox(height: 16.0), // Spacing after search bar
+            Row(
               children: [
                 Expanded(
                   child: TextField(
@@ -106,6 +109,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                     decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
                   ),
                 ),
+                const SizedBox(width: 10.0), // Spacing between fields
                 Expanded(
                   child: TextField(
                     controller: priceController,
@@ -113,6 +117,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
+                const SizedBox(width: 10.0),
                 Expanded(
                   child: TextField(
                     controller: stockController,
@@ -120,8 +125,15 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
+                const SizedBox(width: 10.0),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                    elevation: 4.0,
+                  ),
                   onPressed: () async {
                     if (nameController.text.isEmpty ||
                         priceController.text.isEmpty ||
@@ -156,71 +168,72 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                       );
                     }
                   },
-                  child: const Text('Add', style: TextStyle(color: Colors.white)),
+                  child: const Text('Add', style: TextStyle(fontSize: 16.0)),
                 ),
               ],
             ),
-          ),
-          Expanded(
-            child: Consumer<InventoryProvider>(
-              builder: (context, provider, child) {
-                final filteredProducts = provider.products
-                    .where((product) => product.name.toLowerCase().contains(_searchQuery.toLowerCase()))
-                    .toList();
+            const SizedBox(height: 16.0), // Spacing before table
+            Expanded(
+              child: Consumer<InventoryProvider>(
+                builder: (context, provider, child) {
+                  final filteredProducts = provider.products
+                      .where((product) => product.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+                      .toList();
 
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Price')),
-                      DataColumn(label: Text('Stock')),
-                      DataColumn(label: Text('Actions')),
-                    ],
-                    rows: filteredProducts.map((product) => DataRow(cells: [
-                          DataCell(Text(product.name)),
-                          DataCell(Text(product.price.toStringAsFixed(2))),
-                          DataCell(Text(product.stock.toString())),
-                          DataCell(Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _showEditDialog(context, product),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Delete Product'),
-                                      content: Text('Are you sure you want to delete ${product.name}?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          child: const Text('No'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          child: const Text('Yes'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  if (confirm == true) {
-                                    await provider.deleteProduct(product.id, context);
-                                  }
-                                },
-                              ),
-                            ],
-                          )),
-                        ])).toList(),
-                  ),
-                );
-              },
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Name')),
+                        DataColumn(label: Text('Price')),
+                        DataColumn(label: Text('Stock')),
+                        DataColumn(label: Text('Actions')),
+                      ],
+                      rows: filteredProducts.map((product) => DataRow(cells: [
+                            DataCell(Text(product.name)),
+                            DataCell(Text(product.price.toStringAsFixed(2))),
+                            DataCell(Text(product.stock.toString())),
+                            DataCell(Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () => _showEditDialog(context, product),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Delete Product'),
+                                        content: Text('Are you sure you want to delete ${product.name}?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            child: const Text('No'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            child: const Text('Yes'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      await provider.deleteProduct(product.id, context);
+                                    }
+                                  },
+                                ),
+                              ],
+                            )),
+                          ])).toList(),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

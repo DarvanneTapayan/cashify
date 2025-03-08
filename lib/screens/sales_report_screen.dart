@@ -13,7 +13,10 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sales Reports')),
+      appBar: AppBar(
+        title: const Text('Sales Reports'),
+        backgroundColor: Colors.blue,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Consumer<ReportProvider>(
@@ -34,6 +37,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     }
                   },
                 ),
+                const SizedBox(height: 16.0), // Spacing after dropdown
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -71,12 +75,10 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'Total Sales: \$${reportProvider.totalSales.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                const SizedBox(height: 16.0), // Spacing before total
+                Text(
+                  'Total Sales: \$${reportProvider.totalSales.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                 ),
               ],
             );
