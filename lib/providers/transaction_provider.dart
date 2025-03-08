@@ -43,15 +43,23 @@ class TransactionProvider with ChangeNotifier {
     await _loadSettings();
   }
 
-  void addToCart(Product product) {
+  bool addToCart(Product product, int quantity) {
     final existingItemIndex = _cart.indexWhere((item) => item['product'].id == product.id);
-    if (existingItemIndex >= 0) {
-      _cart[existingItemIndex]['quantity']++;
-    } else {
-      _cart.add({'product': product, 'quantity': 1});
+    final currentQuantity = existingItemIndex >= 0 ? _cart[existingItemIndex]['quantity'] : 0;
+    final totalRequestedQuantity = currentQuantity + quantity;
+
+    if (totalRequestedQuantity > product.stock) {
+      return false; // Stock exceeded
     }
-    _total += product.price;
+
+    if (existingItemIndex >= 0) {
+      _cart[existingItemIndex]['quantity'] = totalRequestedQuantity;
+    } else {
+      _cart.add({'product': product, 'quantity': quantity});
+    }
+    _total += product.price * quantity;
     notifyListeners();
+    return true; // Success
   }
 
   void removeFromCart(int index) {
@@ -83,15 +91,13 @@ class TransactionProvider with ChangeNotifier {
       );
     }
 
-    // Capture transaction details before clearing
     final transactionDetails = {
       'transactionId': transactionId,
       'total': _total,
-      'cart': List<Map<String, dynamic>>.from(_cart), // Create a copy of the cart
+      'cart': List<Map<String, dynamic>>.from(_cart),
       'paymentMethod': _paymentMethod,
     };
 
-    // Clear the cart and total after capturing details
     _cart.clear();
     _total = 0.0;
     await _loadProducts();

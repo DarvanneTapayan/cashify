@@ -30,7 +30,7 @@ class TransactionScreen extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder: (_) => ReceiptWidget(transactionDetails: transactionDetails),
-                      ).then((_) => Navigator.pop(context)); // Return to dashboard after closing receipt
+                      ).then((_) => Navigator.pop(context));
                     }
                   },
                 ),
