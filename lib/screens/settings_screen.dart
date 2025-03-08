@@ -36,48 +36,43 @@ class SettingsScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16.0),
-                Builder(
-                  builder: (BuildContext buttonContext) {
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                        elevation: 4.0,
-                      ),
-                      onPressed: () async {
-                        print('Save button pressed');
-                        final dbService = DatabaseService();
-                        try {
-                          await dbService.updateSettings(
-                            transactionProvider.cashEnabled,
-                            transactionProvider.cardEnabled,
-                          );
-                          print('Settings updated in database');
-                          ScaffoldMessenger.of(buttonContext).showSnackBar(
-                            const SnackBar(
-                              content: Text('Successfully saved'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          await Future.delayed(const Duration(seconds: 2));
-                          await transactionProvider.refreshSettings(); // Moved after SnackBar
-                          if (buttonContext.mounted) {
-                            Navigator.pop(buttonContext);
-                          }
-                        } catch (e) {
-                          print('Error during settings save: $e');
-                          if (buttonContext.mounted) {
-                            ScaffoldMessenger.of(buttonContext).showSnackBar(
-                              SnackBar(content: Text('Error saving settings: $e')),
-                            );
-                          }
-                        }
-                      },
-                      child: const Text('Save', style: TextStyle(fontSize: 16.0)),
-                    );
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                    elevation: 4.0,
+                  ),
+                  onPressed: () async {
+                    print('Save button pressed');
+                    final dbService = DatabaseService();
+                    try {
+                      await dbService.updateSettings(
+                        transactionProvider.cashEnabled,
+                        transactionProvider.cardEnabled,
+                      );
+                      print('Settings updated in database');
+                      await transactionProvider.refreshSettings();
+                      if (context.mounted) {
+                        Navigator.pop(context); // Pop first
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Successfully saved'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print('Error during settings save: $e');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error saving settings: $e')),
+                        );
+                      }
+                    }
                   },
+                  child: const Text('Save', style: TextStyle(fontSize: 16.0)),
                 ),
               ],
             );

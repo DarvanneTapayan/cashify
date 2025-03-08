@@ -12,6 +12,8 @@ class InventoryManagementScreen extends StatefulWidget {
 
 class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
   String _searchQuery = '';
+  String _sortBy = 'Name'; // Default sort by Name
+  bool _sortAscending = true; // Default ascending order
 
   void _showEditDialog(BuildContext context, Product product) {
     final nameController = TextEditingController(text: product.name);
@@ -70,6 +72,29 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
         ],
       ),
     );
+  }
+
+  // Sort products based on selected criteria
+  List<Product> _sortProducts(List<Product> products) {
+    final sortedProducts = List<Product>.from(products);
+    switch (_sortBy) {
+      case 'Name':
+        sortedProducts.sort((a, b) => _sortAscending
+            ? a.name.compareTo(b.name)
+            : b.name.compareTo(a.name));
+        break;
+      case 'Price':
+        sortedProducts.sort((a, b) => _sortAscending
+            ? a.price.compareTo(b.price)
+            : b.price.compareTo(a.price));
+        break;
+      case 'Stock':
+        sortedProducts.sort((a, b) => _sortAscending
+            ? a.stock.compareTo(b.stock)
+            : b.stock.compareTo(a.stock));
+        break;
+    }
+    return sortedProducts;
   }
 
   @override
@@ -176,60 +201,96 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
               ],
             ),
             const SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DropdownButton<String>(
+                  value: _sortBy,
+                  items: const [
+                    DropdownMenuItem(value: 'Name', child: Text('Sort by Name')),
+                    DropdownMenuItem(value: 'Price', child: Text('Sort by Price')),
+                    DropdownMenuItem(value: 'Stock', child: Text('Sort by Stock')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _sortBy = value;
+                      });
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward),
+                  onPressed: () {
+                    setState(() {
+                      _sortAscending = !_sortAscending;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16.0),
             Expanded(
               child: Consumer<InventoryProvider>(
                 builder: (context, provider, child) {
                   final filteredProducts = provider.products
                       .where((product) => product.name.toLowerCase().contains(_searchQuery.toLowerCase()))
                       .toList();
+                  final sortedProducts = _sortProducts(filteredProducts);
 
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Name')),
-                        DataColumn(label: Text('Price')),
-                        DataColumn(label: Text('Stock')),
-                        DataColumn(label: Text('Actions')),
-                      ],
-                      rows: filteredProducts.map((product) => DataRow(cells: [
-                            DataCell(Text(product.name)),
-                            DataCell(Text(product.price.toStringAsFixed(2))),
-                            DataCell(Text(product.stock.toString())),
-                            DataCell(Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () => _showEditDialog(context, product),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    final confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('Delete Product'),
-                                        content: Text('Are you sure you want to delete ${product.name}?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context, false),
-                                            child: const Text('No'),
+                  return Scrollbar(
+                    thumbVisibility: true, // Always show scrollbar thumb
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columns: const [
+                            DataColumn(label: Text('Name')),
+                            DataColumn(label: Text('Price')),
+                            DataColumn(label: Text('Stock')),
+                            DataColumn(label: Text('Actions')),
+                          ],
+                          rows: sortedProducts.map((product) => DataRow(cells: [
+                                DataCell(Text(product.name)),
+                                DataCell(Text(product.price.toStringAsFixed(2))),
+                                DataCell(Text(product.stock.toString())),
+                                DataCell(Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () => _showEditDialog(context, product),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Delete Product'),
+                                            content: Text('Are you sure you want to delete ${product.name}?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, false),
+                                                child: const Text('No'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, true),
+                                                child: const Text('Yes'),
+                                              ),
+                                            ],
                                           ),
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context, true),
-                                            child: const Text('Yes'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                    if (confirm == true) {
-                                      await provider.deleteProduct(product.id, context);
-                                    }
-                                  },
-                                ),
-                              ],
-                            )),
-                          ])).toList(),
+                                        );
+                                        if (confirm == true) {
+                                          await provider.deleteProduct(product.id, context);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                )),
+                              ])).toList(),
+                        ),
+                      ),
                     ),
                   );
                 },
