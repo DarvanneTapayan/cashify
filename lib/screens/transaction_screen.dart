@@ -70,7 +70,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           double.tryParse(_cashController.text) ?? 0.0;
                       double change = cash - total;
                       return Text(
-                        'Change: \$${change.toStringAsFixed(2)}',
+                        'Change: \₱${change.toStringAsFixed(2)}',
                         style: const TextStyle(fontSize: 16.0),
                       );
                     },
