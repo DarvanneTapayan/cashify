@@ -68,17 +68,32 @@ class DatabaseService {
           )
         ''');
         await db.insert('users', {'username': 'admin', 'password': 'admin123'});
-        await db.insert('products', {'name': 'Shirt', 'price': 50.0, 'stock': 10});
-        await db.insert('products', {'name': 'Pants', 'price': 100.0, 'stock': 5});
+        await db.insert('products', {
+          'name': 'Shirt',
+          'price': 50.0,
+          'stock': 10,
+        });
+        await db.insert('products', {
+          'name': 'Pants',
+          'price': 100.0,
+          'stock': 5,
+        });
         await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
         print('Database initialized with default data');
       },
     );
   }
 
-  Future<List<Map<String, dynamic>>> login(String username, String password) async {
+  Future<List<Map<String, dynamic>>> login(
+    String username,
+    String password,
+  ) async {
     final db = await database;
-    return await db.query('users', where: 'username = ? AND password = ?', whereArgs: [username, password]);
+    return await db.query(
+      'users',
+      where: 'username = ? AND password = ?',
+      whereArgs: [username, password],
+    );
   }
 
   Future<List<Product>> getProducts() async {
@@ -92,7 +107,12 @@ class DatabaseService {
     await db.insert('products', {'name': name, 'price': price, 'stock': stock});
   }
 
-  Future<void> updateProduct(int id, String name, double price, int stock) async {
+  Future<void> updateProduct(
+    int id,
+    String name,
+    double price,
+    int stock,
+  ) async {
     final db = await database;
     await db.update(
       'products',
@@ -109,7 +129,12 @@ class DatabaseService {
 
   Future<void> updateProductStock(int productId, int newStock) async {
     final db = await database;
-    await db.update('products', {'stock': newStock}, where: 'id = ?', whereArgs: [productId]);
+    await db.update(
+      'products',
+      {'stock': newStock},
+      where: 'id = ?',
+      whereArgs: [productId],
+    );
   }
 
   Future<int> insertTransaction(double total, String paymentMethod) async {
@@ -121,7 +146,12 @@ class DatabaseService {
     });
   }
 
-  Future<void> insertTransactionItem(int transactionId, int productId, int quantity, double price) async {
+  Future<void> insertTransactionItem(
+    int transactionId,
+    int productId,
+    int quantity,
+    double price,
+  ) async {
     final db = await database;
     await db.insert('transaction_items', {
       'transaction_id': transactionId,
@@ -136,7 +166,10 @@ class DatabaseService {
     return await db.query('transactions');
   }
 
-  Future<List<Transaction>> getTransactionsByPeriod(DateTime start, DateTime end) async {
+  Future<List<Transaction>> getTransactionsByPeriod(
+    DateTime start,
+    DateTime end,
+  ) async {
     final db = await database;
     final maps = await db.query(
       'transactions',
@@ -196,7 +229,10 @@ class DatabaseService {
   Future<void> updateSettings(bool cashEnabled, bool cardEnabled) async {
     final db = await database;
     final existingSettings = await db.query('settings', limit: 1);
-    final data = {'cash_enabled': cashEnabled ? 1 : 0, 'card_enabled': cardEnabled ? 1 : 0};
+    final data = {
+      'cash_enabled': cashEnabled ? 1 : 0,
+      'card_enabled': cardEnabled ? 1 : 0,
+    };
     if (existingSettings.isEmpty) {
       await db.insert('settings', data);
       print('Inserted settings: $data');
