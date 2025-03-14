@@ -3,26 +3,33 @@ import 'package:provider/provider.dart';
 import '../providers/inventory_provider.dart';
 
 class InventoryListWidget extends StatelessWidget {
+  const InventoryListWidget({super.key}); // Added const constructor
+
   @override
   Widget build(BuildContext context) {
     final inventoryProvider = Provider.of<InventoryProvider>(context);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Name')),
-          DataColumn(label: Text('Price')),
-          DataColumn(label: Text('Stock')),
-        ],
-        rows: inventoryProvider.products
-            .map((p) => DataRow(cells: [
-                  DataCell(Text(p.name)),
-                  DataCell(Text(p.price.toStringAsFixed(2))),
-                  DataCell(Text(p.stock.toString())),
-                ]))
-            .toList(),
-      ),
+    return inventoryProvider.products.isEmpty
+        ? const Center(child: Text('No products available'))
+        : ListView.builder(
+      scrollDirection: Axis.vertical, // Changed to vertical for mobile
+      itemCount: inventoryProvider.products.length,
+      itemBuilder: (context, index) {
+        final product = inventoryProvider.products[index];
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(
+            vertical: 4.0,
+            horizontal: 8.0,
+          ),
+          child: ListTile(
+            title: Text(product.name),
+            subtitle: Text(
+              'Price: ₱${product.price.toStringAsFixed(2)} | Stock: ${product.stock}',
+            ),
+          ),
+        );
+      },
     );
   }
 }

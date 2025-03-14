@@ -26,10 +26,22 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 DropdownButton<String>(
                   value: reportProvider.selectedReport,
                   items: const [
-                    DropdownMenuItem(value: 'Daily', child: Text('Daily Sales')),
-                    DropdownMenuItem(value: 'Weekly', child: Text('Weekly Sales')),
-                    DropdownMenuItem(value: 'Monthly', child: Text('Monthly Sales')),
-                    DropdownMenuItem(value: 'Top Selling', child: Text('Top Selling Products')),
+                    DropdownMenuItem(
+                      value: 'Daily',
+                      child: Text('Daily Sales'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Weekly',
+                      child: Text('Weekly Sales'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Monthly',
+                      child: Text('Monthly Sales'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Top Selling',
+                      child: Text('Top Selling Products'),
+                    ),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -39,48 +51,54 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: reportProvider.selectedReport == 'Top Selling'
-                          ? DataTable(
-                              columns: const [
-                                DataColumn(label: Text('Product')),
-                                DataColumn(label: Text('Quantity Sold')),
-                                DataColumn(label: Text('Total Sales')), // New column
-                              ],
-                              rows: reportProvider.topSellingProducts
-                                  .map((p) => DataRow(cells: [
-                                        DataCell(Text(p['name'])),
-                                        DataCell(Text(p['quantity'].toString())),
-                                        DataCell(Text('\$${p['total_sales'].toStringAsFixed(2)}')), // Display per product
-                                      ]))
-                                  .toList(),
-                            )
-                          : DataTable(
-                              columns: const [
-                                DataColumn(label: Text('ID')),
-                                DataColumn(label: Text('Timestamp')),
-                                DataColumn(label: Text('Total')),
-                                DataColumn(label: Text('Payment')),
-                              ],
-                              rows: reportProvider.transactions
-                                  .map((t) => DataRow(cells: [
-                                        DataCell(Text(t.id.toString())),
-                                        DataCell(Text(t.timestamp)),
-                                        DataCell(Text(t.total.toStringAsFixed(2))),
-                                        DataCell(Text(t.paymentMethod)),
-                                      ]))
-                                  .toList(),
+                  child:
+                  reportProvider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : reportProvider.errorMessage != null
+                      ? Center(child: Text(reportProvider.errorMessage!))
+                      : ListView.builder(
+                    // Replaced DataTable with ListView
+                    itemCount:
+                    reportProvider.selectedReport == 'Top Selling'
+                        ? reportProvider.topSellingProducts.length
+                        : reportProvider.transactions.length,
+                    itemBuilder: (context, index) {
+                      if (reportProvider.selectedReport ==
+                          'Top Selling') {
+                        final product =
+                        reportProvider.topSellingProducts[index];
+                        return Card(
+                          child: ListTile(
+                            title: Text(product['name']),
+                            subtitle: Text(
+                              'Qty Sold: ${product['quantity']} | Total: \$${product['total_sales'].toStringAsFixed(2)}',
                             ),
-                    ),
+                          ),
+                        );
+                      } else {
+                        final transaction =
+                        reportProvider.transactions[index];
+                        return Card(
+                          child: ListTile(
+                            title: Text(
+                              'Transaction #${transaction.id}',
+                            ),
+                            subtitle: Text(
+                              'Total: \$${transaction.total.toStringAsFixed(2)} | ${transaction.timestamp}',
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(height: 16.0),
                 Text(
                   'Total Sales: \$${reportProvider.totalSales.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
                 ),
               ],
             );

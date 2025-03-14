@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
+import '../models/product_model.dart'; // Added import for Product
 
 class ProductSelectionWidget extends StatefulWidget {
-  const ProductSelectionWidget({super.key}); // Added const constructor
+  const ProductSelectionWidget({super.key});
 
   @override
   _ProductSelectionWidgetState createState() => _ProductSelectionWidgetState();
@@ -23,20 +24,33 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
   Widget build(BuildContext context) {
     return Consumer<TransactionProvider>(
       builder: (context, transactionProvider, child) {
-        final filteredProducts = transactionProvider.products
-            .where((product) => product.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        if (transactionProvider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (transactionProvider.errorMessage != null) {
+          return Center(child: Text(transactionProvider.errorMessage!));
+        }
+
+        final filteredProducts =
+        transactionProvider.products
+            .where(
+              (product) => product.name.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ),
+        )
             .toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TextField(
                 decoration: InputDecoration(
                   labelText: 'Search Products',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: Colors.grey[200],
@@ -44,9 +58,11 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                 onChanged: (value) => setState(() => _searchQuery = value),
               ),
             ),
-            // Product List
             Expanded(
-              child: ListView.builder(
+              child:
+              filteredProducts.isEmpty
+                  ? const Center(child: Text('No matching products'))
+                  : ListView.builder(
                 itemCount: filteredProducts.length,
                 itemBuilder: (context, index) {
                   final product = filteredProducts[index];
@@ -54,35 +70,43 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                     product.hashCode,
                         () => TextEditingController(),
                   );
-                  final quantityController = _quantityControllers[product.hashCode]!;
+                  final quantityController =
+                  _quantityControllers[product.hashCode]!;
 
                   return Card(
                     elevation: 2,
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
                         children: [
-                          // Product Info
                           Expanded(
                             flex: 2,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   product.name,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Price: ₱${product.price.toStringAsFixed(2)} | Stock: ${product.stock}',
-                                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          // Quantity Input and Add Button
                           Expanded(
                             flex: 1,
                             child: Row(
@@ -95,19 +119,32 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                                     decoration: InputDecoration(
                                       hintText: 'Qty',
                                       border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius:
+                                        BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                      contentPadding:
+                                      const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 12,
+                                      ),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: const Icon(Icons.add_shopping_cart),
+                                  icon: const Icon(
+                                    Icons.add_shopping_cart,
+                                  ),
                                   color: Colors.blue,
                                   iconSize: 28,
-                                  onPressed: () => _addToCart(transactionProvider, product, quantityController, context),
+                                  onPressed:
+                                      () => _addToCart(
+                                    transactionProvider,
+                                    product,
+                                    quantityController,
+                                    context,
+                                  ),
                                 ),
                               ],
                             ),
@@ -127,7 +164,7 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
 
   void _addToCart(
       TransactionProvider provider,
-      dynamic product,
+      Product product,
       TextEditingController controller,
       BuildContext context,
       ) {
@@ -143,7 +180,7 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Cannot add $quantity ${product.name}(s). Only ${product.stock} in stock.'),
+            content: Text(provider.errorMessage ?? 'Failed to add to cart'),
           ),
         );
       }

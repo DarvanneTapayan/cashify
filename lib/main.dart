@@ -1,59 +1,71 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // Keep for desktop support
-import 'screens/login_screen.dart'; // Ensure this path matches your project structure
-import 'providers/auth_provider.dart'; // Authentication state management
-import 'providers/transaction_provider.dart'; // Transaction state management
-import 'providers/inventory_provider.dart'; // Inventory state management
-import 'providers/report_provider.dart'; // Sales report state management
+import 'screens/login_screen.dart';
+import 'providers/auth_provider.dart';
+import 'providers/transaction_provider.dart';
+import 'providers/inventory_provider.dart';
+import 'providers/report_provider.dart';
+import 'services/database_service.dart'; // For cleanup (optional)
 
-void main() {
-  // Initialize the database factory only for desktop platforms
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    databaseFactory = databaseFactoryFfi; // Enables SQLite FFI for desktop
-  }
-  // On Android, sqflite works natively, so no additional setup is needed
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
 
-  // Start the Flutter app with provider setup
+  // For Android, no special database factory setup is needed (sqflite works natively)
+  // If targeting both Android and desktop in the future, add back:
+  // import 'dart:io';
+  // if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  //   databaseFactory = databaseFactoryFfi;
+  // }
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()), // Manages login/logout state
-        ChangeNotifierProvider(create: (_) => TransactionProvider()), // Manages transaction data
-        ChangeNotifierProvider(create: (_) => InventoryProvider()), // Manages inventory data
-        ChangeNotifierProvider(create: (_) => ReportProvider()), // Manages sales report data
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => InventoryProvider()),
+        ChangeNotifierProvider(create: (_) => ReportProvider()),
       ],
       child: const MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void dispose() {
+    // Optional: Close database when app exits
+    DatabaseService().close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ukay-Ukay Cashier', // Shortened for mobile
+      title: 'Ukay-Ukay Cashier',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        useMaterial3: true, // Enable Material 3 for modern Android design
-        scaffoldBackgroundColor: Colors.grey[100], // Light background for mobile
-        appBarTheme: const AppBarTheme(
-          elevation: 2, // Slight shadow for depth
-          centerTitle: true, // Center app bar titles
-        ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.grey[100],
+        appBarTheme: const AppBarTheme(elevation: 2, centerTitle: true),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            elevation: 4,
           ),
         ),
+        textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 16)),
       ),
-      home: const LoginScreen(), // Set LoginScreen as the initial screen
+      home: const LoginScreen(),
     );
   }
 }

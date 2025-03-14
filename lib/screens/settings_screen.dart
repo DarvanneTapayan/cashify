@@ -8,7 +8,6 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the screen width for responsive sizing
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -20,7 +19,7 @@ class SettingsScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
-            width: screenWidth * 0.5, // Border box takes 50% of screen width
+            width: screenWidth * 0.5,
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -37,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
             child: Consumer<TransactionProvider>(
               builder: (context, transactionProvider, child) {
                 return Column(
-                  mainAxisSize: MainAxisSize.min, // Minimize column height
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SwitchListTile(
@@ -63,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16.0),
                     SizedBox(
-                      width: screenWidth * 0.3, // Button width is 30% of screen
+                      width: screenWidth * 0.3,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -77,37 +76,54 @@ class SettingsScreen extends StatelessWidget {
                           ),
                           elevation: 4.0,
                         ),
-                        onPressed: () async {
-                          print('Save button pressed');
+                        onPressed:
+                        transactionProvider.isLoading
+                            ? null
+                            : () async {
                           final dbService = DatabaseService();
                           try {
                             await dbService.updateSettings(
                               transactionProvider.cashEnabled,
                               transactionProvider.cardEnabled,
                             );
-                            print('Settings updated in database');
                             await transactionProvider.refreshSettings();
                             if (context.mounted) {
-                              Navigator.pop(context); // Pop first
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Successfully saved'),
-                                  duration: Duration(seconds: 2),
+                                  content: Text(
+                                    'Settings saved successfully',
+                                  ),
                                 ),
                               );
                             }
                           } catch (e) {
-                            print('Error during settings save: $e');
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(
                                 SnackBar(
-                                  content: Text('Error saving settings: $e'),
+                                  content: Text(
+                                    transactionProvider.errorMessage ??
+                                        'Error saving settings',
+                                  ),
                                 ),
                               );
                             }
                           }
                         },
-                        child: const Text(
+                        child:
+                        transactionProvider.isLoading
+                            ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
+                            : const Text(
                           'Save',
                           style: TextStyle(fontSize: 16.0),
                         ),
