@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
-import '../models/product_model.dart'; // Added import for Product
+import '../models/product_model.dart';
 
 class ProductSelectionWidget extends StatefulWidget {
-  const ProductSelectionWidget({super.key});
+  final List<Product>? filteredProducts;
+  const ProductSelectionWidget({super.key, this.filteredProducts});
 
   @override
   _ProductSelectionWidgetState createState() => _ProductSelectionWidgetState();
 }
 
 class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
-  String _searchQuery = '';
   final Map<int, TextEditingController> _quantityControllers = {};
 
   @override
@@ -27,119 +27,90 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
         if (transactionProvider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (transactionProvider.errorMessage != null) {
-          return Center(child: Text(transactionProvider.errorMessage!));
-        }
 
-        final filteredProducts =
-        transactionProvider.products
-            .where(
-              (product) => product.name.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ),
-        )
-            .toList();
+        final productsToDisplay = widget.filteredProducts ?? transactionProvider.products;
 
         return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Search Products',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                onChanged: (value) => setState(() => _searchQuery = value),
-              ),
-            ),
-            Expanded(
-              child:
-              filteredProducts.isEmpty
+            Flexible(
+              fit: FlexFit.loose,
+              child: productsToDisplay.isEmpty
                   ? const Center(child: Text('No matching products'))
                   : ListView.builder(
-                itemCount: filteredProducts.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: productsToDisplay.length,
                 itemBuilder: (context, index) {
-                  final product = filteredProducts[index];
+                  final product = productsToDisplay[index];
                   _quantityControllers.putIfAbsent(
                     product.hashCode,
                         () => TextEditingController(),
                   );
-                  final quantityController =
-                  _quantityControllers[product.hashCode]!;
+                  final quantityController = _quantityControllers[product.hashCode]!;
 
                   return Card(
                     elevation: 2,
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(
+                          Flexible(
                             flex: 2,
+                            fit: FlexFit.tight,
                             child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   product.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Price: ₱${product.price.toStringAsFixed(2)} | Stock: ${product.stock}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
+                                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
                               ],
                             ),
                           ),
-                          Expanded(
-                            flex: 1,
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 120,
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
-                                  width: 80,
+                                  width: 60,
                                   child: TextField(
                                     controller: quantityController,
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       hintText: 'Qty',
                                       border: OutlineInputBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding:
-                                      const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 12,
-                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: const Icon(
-                                    Icons.add_shopping_cart,
-                                  ),
+                                  icon: const Icon(Icons.add_shopping_cart),
                                   color: Colors.blue,
                                   iconSize: 28,
-                                  onPressed:
-                                      () => _addToCart(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () => _addToCart(
                                     transactionProvider,
                                     product,
                                     quantityController,
@@ -171,7 +142,10 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
     final quantity = int.tryParse(controller.text) ?? 0;
     if (quantity <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid quantity')),
+        const SnackBar(
+          content: Text('Please enter a valid quantity'),
+          duration: Duration(seconds: 2),
+        ),
       );
     } else {
       final success = provider.addToCart(product, quantity);
@@ -181,6 +155,13 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(provider.errorMessage ?? 'Failed to add to cart'),
+            duration: Duration(seconds: 2),
+            action: SnackBarAction(
+              label: 'OK',
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
           ),
         );
       }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'transaction_screen.dart';
 import 'inventory_management_screen.dart';
 import 'sales_report_screen.dart';
@@ -15,108 +16,78 @@ class DashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Secure Cash & Inventory',
-          style: TextStyle(fontSize: 20),
-        ),
-        backgroundColor: Colors.blue,
+        title: Text('Cashify', style: Theme.of(context).textTheme.headlineLarge),
+        backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade50, Colors.white],
+            colors: [Color(0xFF260A2F), Color(0xFF21231D)],
           ),
         ),
         child: Center(
           child: SingleChildScrollView(
-            // Changed to SingleChildScrollView for smaller screens
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              // Switched to Column for better mobile layout
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
                   width: buttonWidth,
-                  child: _buildMenuButton(
-                    context,
-                    title: 'New Transaction',
-                    icon: Icons.add_shopping_cart,
-                    onPressed:
-                        () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const TransactionScreen(),
-                      ),
-                    ),
-                  ),
+                  child: _buildMenuButton(context,
+                      title: 'New Transaction',
+                      icon: Icons.add_shopping_cart,
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const TransactionScreen()),
+                      )),
                 ),
                 const SizedBox(height: 20.0),
                 SizedBox(
                   width: buttonWidth,
-                  child: _buildMenuButton(
-                    context,
-                    title: 'Inventory Management',
-                    icon: Icons.inventory,
-                    onPressed:
-                        () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const InventoryManagementScreen(),
-                      ),
-                    ),
-                  ),
+                  child: _buildMenuButton(context,
+                      title: 'Inventory Management',
+                      icon: Icons.inventory,
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const InventoryManagementScreen()),
+                      )),
                 ),
                 const SizedBox(height: 20.0),
                 SizedBox(
                   width: buttonWidth,
-                  child: _buildMenuButton(
-                    context,
-                    title: 'Sales Reports',
-                    icon: Icons.bar_chart,
-                    onPressed:
-                        () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SalesReportScreen(),
-                      ),
-                    ),
-                  ),
+                  child: _buildMenuButton(context,
+                      title: 'Sales Reports',
+                      icon: Icons.bar_chart,
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SalesReportScreen()),
+                      )),
                 ),
                 const SizedBox(height: 20.0),
                 SizedBox(
                   width: buttonWidth,
-                  child: _buildMenuButton(
-                    context,
-                    title: 'Settings',
-                    icon: Icons.settings,
-                    onPressed:
-                        () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      ),
-                    ),
-                  ),
+                  child: _buildMenuButton(context,
+                      title: 'Settings',
+                      icon: Icons.settings,
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      )),
                 ),
                 const SizedBox(height: 20.0),
                 SizedBox(
                   width: buttonWidth,
-                  child: _buildMenuButton(
-                    context,
-                    title: 'Log Out',
-                    icon: Icons.logout,
-                    onPressed:
-                        () => Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const LoginScreen(),
-                      ),
-                          (route) => false,
-                    ),
-                  ),
+                  child: _buildMenuButton(context,
+                      title: 'Log Out',
+                      icon: Icons.logout,
+                      onPressed: () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                            (route) => false,
+                      )),
                 ),
               ],
             ),
@@ -126,24 +97,13 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuButton(
-      BuildContext context, {
-        required String title,
-        required IconData icon,
-        required VoidCallback onPressed,
-      }) {
+  Widget _buildMenuButton(BuildContext context,
+      {required String title, required IconData icon, required VoidCallback onPressed}) {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 28.0),
-      label: Text(title, style: const TextStyle(fontSize: 18.0)),
+      label: Text(title, style: Theme.of(context).textTheme.labelLarge),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 24.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        elevation: 6.0,
         minimumSize: const Size.fromHeight(56),
       ),
     );

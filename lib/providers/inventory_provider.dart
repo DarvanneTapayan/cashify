@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../services/database_service.dart';
-import '../models/product_model.dart'; // Updated import
-import 'transaction_provider.dart';
+import '../models/product_model.dart';
 
 class InventoryProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
   List<Product> _products = [];
-  bool _isLoading = false; // Added for loading state
-  String? _errorMessage; // Added for error feedback
+  bool _isLoading = false;
+  String? _errorMessage;
 
   List<Product> get products => _products;
   bool get isLoading => _isLoading;
@@ -29,7 +27,7 @@ class InventoryProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'Failed to load products: $e';
       _isLoading = false;
-      _products = []; // Reset on error
+      _products = [];
     }
     notifyListeners();
   }
@@ -38,12 +36,7 @@ class InventoryProvider with ChangeNotifier {
     await _loadProducts();
   }
 
-  Future<bool> addProduct(
-      String name,
-      double price,
-      int stock, [
-        BuildContext? context,
-      ]) async {
+  Future<bool> addProduct(String name, double price, int stock) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -58,14 +51,6 @@ class InventoryProvider with ChangeNotifier {
 
       await _dbService.insertProduct(name, price, stock);
       await _loadProducts();
-
-      if (context != null) {
-        final transactionProvider = Provider.of<TransactionProvider>(
-          context,
-          listen: false,
-        );
-        await transactionProvider.refreshProducts();
-      }
       return true;
     } catch (e) {
       _errorMessage = 'Failed to add product: $e';
@@ -75,13 +60,7 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> updateProduct(
-      int id,
-      String name,
-      double price,
-      int stock, [
-        BuildContext? context,
-      ]) async {
+  Future<bool> updateProduct(int id, String name, double price, int stock) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -89,14 +68,6 @@ class InventoryProvider with ChangeNotifier {
     try {
       await _dbService.updateProduct(id, name, price, stock);
       await _loadProducts();
-
-      if (context != null) {
-        final transactionProvider = Provider.of<TransactionProvider>(
-          context,
-          listen: false,
-        );
-        await transactionProvider.refreshProducts();
-      }
       return true;
     } catch (e) {
       _errorMessage = 'Failed to update product: $e';
@@ -106,7 +77,7 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> deleteProduct(int id, [BuildContext? context]) async {
+  Future<bool> deleteProduct(int id) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -114,14 +85,6 @@ class InventoryProvider with ChangeNotifier {
     try {
       await _dbService.deleteProduct(id);
       await _loadProducts();
-
-      if (context != null) {
-        final transactionProvider = Provider.of<TransactionProvider>(
-          context,
-          listen: false,
-        );
-        await transactionProvider.refreshProducts();
-      }
       return true;
     } catch (e) {
       _errorMessage = 'Failed to delete product: $e';

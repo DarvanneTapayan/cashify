@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'dashboard_screen.dart';
@@ -27,22 +28,23 @@ class _LoginScreenState extends State<LoginScreen> {
     final inputWidth = screenWidth * 0.5;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(
+        title: Text('Login', style: Theme.of(context).textTheme.headlineLarge),
+      ),
       body: Center(
         child: SingleChildScrollView(
-          // Added for keyboard
           padding: const EdgeInsets.all(16.0),
           child: Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
               return Container(
                 padding: const EdgeInsets.all(20.0),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 2.0),
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
                   borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
+                      color: Colors.black.withOpacity(0.2),
                       spreadRadius: 5,
                       blurRadius: 7,
                       offset: const Offset(0, 3),
@@ -57,9 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: inputWidth,
                       child: TextField(
                         controller: _usernameController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Username',
+                          labelStyle: Theme.of(context).textTheme.bodyMedium,
                         ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
                     const SizedBox(height: 16.0),
@@ -67,9 +71,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: inputWidth,
                       child: TextField(
                         controller: _passwordController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Password',
+                          labelStyle: Theme.of(context).textTheme.bodyMedium,
                         ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                         obscureText: true,
                       ),
                     ),
@@ -77,13 +83,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 16.0),
                       Text(
                         authProvider.errorMessage!,
-                        style: const TextStyle(color: Colors.red),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: const Color(0xFFA8200D)),
                       ),
                     ],
                     const SizedBox(height: 20.0),
                     ElevatedButton(
-                      onPressed:
-                      authProvider.isLoading
+                      onPressed: authProvider.isLoading
                           ? null
                           : () async {
                         final success = await authProvider.login(
@@ -93,23 +98,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (success && context.mounted) {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => const DashboardScreen(),
-                            ),
+                            MaterialPageRoute(builder: (context) => const DashboardScreen()),
                           );
                         }
                       },
-                      child:
-                      authProvider.isLoading
+                      child: authProvider.isLoading
                           ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
+                        child: CircularProgressIndicator(color: Color(0xFF163300)),
                       )
-                          : const Text('Login'),
+                          : Text('Login', style: Theme.of(context).textTheme.labelLarge),
                     ),
                   ],
                 ),

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; // Added for debugPrint
+import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +22,7 @@ class DatabaseService {
   Future<sqflite.Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'ukay_ukay.db');
-    debugPrint('Database path: $path'); // Now valid with import
+    debugPrint('Database path: $path');
 
     return await sqflite.openDatabase(
       path,
@@ -72,16 +72,8 @@ class DatabaseService {
         ''');
 
         await db.insert('users', {'username': 'admin', 'password': 'admin123'});
-        await db.insert('products', {
-          'name': 'Shirt',
-          'price': 50.0,
-          'stock': 10,
-        });
-        await db.insert('products', {
-          'name': 'Pants',
-          'price': 100.0,
-          'stock': 5,
-        });
+        await db.insert('products', {'name': 'Shirt', 'price': 50.0, 'stock': 10});
+        await db.insert('products', {'name': 'Pants', 'price': 100.0, 'stock': 5});
         await db.insert('settings', {'cash_enabled': 1, 'card_enabled': 0});
         debugPrint('Database initialized with default data');
       },
@@ -106,24 +98,15 @@ class DatabaseService {
 
   Future<void> insertProduct(String name, double price, int stock) async {
     if (name.isEmpty || price < 0 || stock < 0) {
-      throw Exception(
-        'Invalid product data: name must not be empty, price and stock must be non-negative',
-      );
+      throw Exception('Invalid product data: name must not be empty, price and stock must be non-negative');
     }
     final db = await database;
     await db.insert('products', {'name': name, 'price': price, 'stock': stock});
   }
 
-  Future<void> updateProduct(
-      int id,
-      String name,
-      double price,
-      int stock,
-      ) async {
+  Future<void> updateProduct(int id, String name, double price, int stock) async {
     if (name.isEmpty || price < 0 || stock < 0) {
-      throw Exception(
-        'Invalid product data: name must not be empty, price and stock must be non-negative',
-      );
+      throw Exception('Invalid product data: name must not be empty, price and stock must be non-negative');
     }
     final db = await database;
     final rowsAffected = await db.update(
@@ -171,9 +154,7 @@ class DatabaseService {
       List<Map<String, dynamic>> cartItems,
       ) async {
     if (total < 0 || paymentMethod.isEmpty || cartItems.isEmpty) {
-      throw Exception(
-        'Invalid transaction data: total must be non-negative, payment method and cart required',
-      );
+      throw Exception('Invalid transaction data: total must be non-negative, payment method and cart required');
     }
 
     final db = await database;
@@ -216,10 +197,7 @@ class DatabaseService {
     return result.map((map) => Transaction.fromMap(map)).toList();
   }
 
-  Future<List<Transaction>> getTransactionsByPeriod(
-      DateTime start,
-      DateTime end,
-      ) async {
+  Future<List<Transaction>> getTransactionsByPeriod(DateTime start, DateTime end) async {
     final db = await database;
     final result = await db.query(
       'transactions',
@@ -229,16 +207,21 @@ class DatabaseService {
     return result.map((map) => Transaction.fromMap(map)).toList();
   }
 
-  Future<List<Map<String, dynamic>>> getTopSellingProducts() async {
+  Future<List<Map<String, dynamic>>> getTopSellingProducts([DateTime? start, DateTime? end]) async {
     final db = await database;
-    final result = await db.rawQuery('''
+    String query = '''
       SELECT p.name, SUM(ti.quantity) as quantity, SUM(ti.quantity * ti.price) as total_sales
       FROM transaction_items ti
       JOIN products p ON ti.product_id = p.id
-      GROUP BY p.id, p.name
-      ORDER BY quantity DESC
-      LIMIT 5
-    ''');
+      JOIN transactions t ON ti.transaction_id = t.id
+    ''';
+    List<Object?>? whereArgs;
+    if (start != null && end != null) {
+      query += ' WHERE t.timestamp >= ? AND t.timestamp <= ?';
+      whereArgs = [start.toIso8601String(), end.toIso8601String()];
+    }
+    query += ' GROUP BY p.id, p.name ORDER BY total_sales DESC LIMIT 5';
+    final result = await db.rawQuery(query, whereArgs);
     return result;
   }
 

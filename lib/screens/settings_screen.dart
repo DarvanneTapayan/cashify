@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/database_service.dart';
@@ -12,22 +13,22 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: Colors.blue,
+        title: Text('Settings', style: Theme.of(context).textTheme.headlineLarge),
       ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
-            width: screenWidth * 0.5,
-            padding: const EdgeInsets.all(16.0),
+            width: screenWidth * 0.8,
+            constraints: const BoxConstraints(minWidth: 300, maxWidth: 600),
+            padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey),
+              color: Theme.of(context).colorScheme.surface,
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
               borderRadius: BorderRadius.circular(8.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
+                  color: Colors.black.withOpacity(0.2),
                   blurRadius: 4.0,
                   offset: const Offset(0, 2),
                 ),
@@ -37,47 +38,30 @@ class SettingsScreen extends StatelessWidget {
               builder: (context, transactionProvider, child) {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SwitchListTile(
-                      title: const Text('Accept Cash Payments'),
+                      title: Text('Accept Cash Payments', style: Theme.of(context).textTheme.headlineSmall),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                       value: transactionProvider.cashEnabled,
                       onChanged: (value) {
-                        transactionProvider.updateLocalSettings(
-                          value,
-                          transactionProvider.cardEnabled,
-                        );
+                        transactionProvider.updateLocalSettings(value, transactionProvider.cardEnabled);
                       },
                     ),
-                    const SizedBox(height: 16.0),
+                    const SizedBox(height: 24.0),
                     SwitchListTile(
-                      title: const Text('Accept Card Payments'),
+                      title: Text('Accept Card Payments', style: Theme.of(context).textTheme.headlineSmall),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                       value: transactionProvider.cardEnabled,
                       onChanged: (value) {
-                        transactionProvider.updateLocalSettings(
-                          transactionProvider.cashEnabled,
-                          value,
-                        );
+                        transactionProvider.updateLocalSettings(transactionProvider.cashEnabled, value);
                       },
                     ),
-                    const SizedBox(height: 16.0),
+                    const SizedBox(height: 24.0),
                     SizedBox(
-                      width: screenWidth * 0.3,
+                      width: double.infinity,
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 15.0,
-                            horizontal: 20.0,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          elevation: 4.0,
-                        ),
-                        onPressed:
-                        transactionProvider.isLoading
+                        onPressed: transactionProvider.isLoading
                             ? null
                             : () async {
                           final dbService = DatabaseService();
@@ -89,44 +73,30 @@ class SettingsScreen extends StatelessWidget {
                             await transactionProvider.refreshSettings();
                             if (context.mounted) {
                               Navigator.pop(context);
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Settings saved successfully',
-                                  ),
-                                ),
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Settings saved successfully')),
                               );
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    transactionProvider.errorMessage ??
-                                        'Error saving settings',
+                                    transactionProvider.errorMessage ?? 'Error saving settings',
+                                    style: Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ),
                               );
                             }
                           }
                         },
-                        child:
-                        transactionProvider.isLoading
+                        child: transactionProvider.isLoading
                             ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
+                          child: CircularProgressIndicator(color: Color(0xFF163300)),
                         )
-                            : const Text(
-                          'Save',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
+                            : Text('Save', style: Theme.of(context).textTheme.labelLarge),
                       ),
                     ),
                   ],
