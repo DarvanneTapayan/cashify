@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                   border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
                   borderRadius: BorderRadius.circular(10.0),
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),

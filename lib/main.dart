@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
       title: 'UkayPOS',
       theme: ThemeData(
         primaryColor: const Color(0xFF9FE870), // Bright Green
-        scaffoldBackgroundColor: const Color(0xFF21231D), // Dark Charcoal
+        scaffoldBackgroundColor: const Color(0xFF121511), // Base Dark
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF9FE870), // Bright Green
           foregroundColor: Color(0xFF163300), // Forest Green
@@ -73,15 +73,14 @@ class _MyAppState extends State<MyApp> {
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF9FE870),
           secondary: Color(0xFF163300),
-          surface: Color(0xFF260A2F),
-          background: Color(0xFF21231D),
+          surface: Color(0xFF1E231F), // Lighter Base Dark for containers
+          background: Color(0xFF121511), // Base Dark
           onPrimary: Color(0xFF163300),
           onSecondary: Color(0xFFFFFFFF),
           onSurface: Color(0xFFFFFFFF),
           onBackground: Color(0xFFFFFFFF),
         ),
         textTheme: TextTheme(
-          // Wise Sans styles (simulated with Inter Bold)
           displayLarge: GoogleFonts.inter(
             fontSize: 64,
             fontWeight: FontWeight.bold,
@@ -103,64 +102,63 @@ class _MyAppState extends State<MyApp> {
             height: 34 / 30,
             color: const Color(0xFFFFFFFF),
           ),
-          // Inter styles
-          headlineLarge: GoogleFonts.inter( // Title Screen
+          headlineLarge: GoogleFonts.inter(
             fontSize: 26,
             fontWeight: FontWeight.w600,
             letterSpacing: -1.5 / 100,
             height: 32 / 26,
             color: const Color(0xFFFFFFFF),
           ),
-          headlineMedium: GoogleFonts.inter( // Title Section
+          headlineMedium: GoogleFonts.inter(
             fontSize: 22,
             fontWeight: FontWeight.w600,
             letterSpacing: -1.5 / 100,
             height: 28 / 22,
             color: const Color(0xFFFFFFFF),
           ),
-          headlineSmall: GoogleFonts.inter( // Title Subsection
+          headlineSmall: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: -1 / 100,
             height: 24 / 18,
             color: const Color(0xFFFFFFFF),
           ),
-          titleLarge: GoogleFonts.inter( // Title Body
+          titleLarge: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             letterSpacing: 1.5 / 100,
             height: 20 / 14,
             color: const Color(0xFFFFFFFF),
           ),
-          titleMedium: GoogleFonts.inter( // Title Group
+          titleMedium: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.normal,
             letterSpacing: -0.5 / 100,
             height: 24 / 16,
             color: const Color(0xFFFFFFFF),
           ),
-          bodyLarge: GoogleFonts.inter( // Body Large
+          bodyLarge: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5 / 100,
             height: 24 / 16,
             color: const Color(0xFFFFFFFF),
           ),
-          bodyMedium: GoogleFonts.inter( // Body Default
+          bodyMedium: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.25 / 100,
             height: 22 / 14,
             color: const Color(0xFFFFFFFF),
           ),
-          labelLarge: GoogleFonts.inter( // Body Large Bold (e.g., buttons)
+          labelLarge: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             letterSpacing: 1 / 100,
             height: 24 / 16,
-            color: const Color(0xFF163300), // On Bright Green
+            color: const Color(0xFF163300),
           ),
-          labelMedium: GoogleFonts.inter( // Body Default Bold
+          labelMedium: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.25 / 100,

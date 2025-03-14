@@ -25,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF260A2F), Color(0xFF21231D)],
+            colors: [Color(0xFF1E231F), Color(0xFF121511)], // Lighter Base Dark to Base Dark
           ),
         ),
         child: Center(

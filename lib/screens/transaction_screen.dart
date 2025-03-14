@@ -71,7 +71,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -120,7 +120,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: SizedBox(
@@ -135,7 +135,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -212,7 +212,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface, // Lighter Base Dark
         title: Text('Sort Products', style: Theme.of(context).textTheme.headlineMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,

@@ -99,7 +99,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                       if (reportProvider.selectedReport == 'Top Selling') {
                         final product = reportProvider.topSellingProducts[index];
                         return Card(
-                          color: Theme.of(context).colorScheme.surface,
+                          color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                           child: ListTile(
                             title: Text(product['name'], style: Theme.of(context).textTheme.headlineSmall),
                             subtitle: Text(
@@ -111,7 +111,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
                       } else {
                         final transaction = reportProvider.transactions[index];
                         return Card(
-                          color: Theme.of(context).colorScheme.surface,
+                          color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                           child: ListTile(
                             title: Text('Transaction #${transaction.id}',
                                 style: Theme.of(context).textTheme.headlineSmall),

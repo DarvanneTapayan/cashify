@@ -25,7 +25,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface, // Lighter Base Dark
         title: Text('Edit Product', style: Theme.of(context).textTheme.headlineMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -176,7 +176,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                     itemBuilder: (context, index) {
                       final product = sortedProducts[index];
                       return Card(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                         child: ListTile(
                           title: Text(product.name, style: Theme.of(context).textTheme.headlineSmall),
                           subtitle: Text(
@@ -301,7 +301,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface, // Lighter Base Dark
         title: Text('Delete Product', style: Theme.of(context).textTheme.headlineMedium),
         content: Text('Are you sure you want to delete ${product.name}?',
             style: Theme.of(context).textTheme.bodyLarge),

@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
             constraints: const BoxConstraints(minWidth: 300, maxWidth: 600),
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
               border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
               borderRadius: BorderRadius.circular(8.0),
               boxShadow: [

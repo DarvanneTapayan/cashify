@@ -64,7 +64,7 @@ class _PaymentProcessingWidgetState extends State<PaymentProcessingWidget> {
                     },
                     underline: const SizedBox.shrink(),
                     isExpanded: true,
-                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    dropdownColor: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                   ),
                 ),
               const SizedBox(height: 8.0),

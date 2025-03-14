@@ -55,7 +55,7 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                     elevation: 2,
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    color: Theme.of(context).colorScheme.surface, // Dark Purple
+                    color: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
