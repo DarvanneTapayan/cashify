@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../models/product_model.dart';
@@ -37,7 +38,7 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
             Flexible(
               fit: FlexFit.loose,
               child: productsToDisplay.isEmpty
-                  ? const Center(child: Text('No matching products'))
+                  ? Center(child: Text('No matching products', style: Theme.of(context).textTheme.bodyMedium))
                   : ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -54,6 +55,7 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                     elevation: 2,
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    color: Theme.of(context).colorScheme.surface, // Dark Purple
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
@@ -68,14 +70,17 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                               children: [
                                 Text(
                                   product.name,
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headlineSmall,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Price: ₱${product.price.toStringAsFixed(2)} | Stock: ${product.stock}',
-                                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(color: const Color(0xFF868685)), // Interactive Secondary
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                 ),
@@ -95,18 +100,26 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       hintText: 'Qty',
+                                      hintStyle: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .copyWith(color: const Color(0xFF868685)),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFF868685), // Interactive Secondary
+                                        ),
                                       ),
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                                     ),
                                     textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.bodyLarge,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
                                   icon: const Icon(Icons.add_shopping_cart),
-                                  color: Colors.blue,
+                                  color: Theme.of(context).colorScheme.secondary, // Forest Green
                                   iconSize: 28,
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
@@ -142,9 +155,9 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
     final quantity = int.tryParse(controller.text) ?? 0;
     if (quantity <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid quantity'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text('Please enter a valid quantity', style: Theme.of(context).textTheme.bodyMedium),
+          duration: const Duration(seconds: 2),
         ),
       );
     } else {
@@ -154,10 +167,14 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(provider.errorMessage ?? 'Failed to add to cart'),
-            duration: Duration(seconds: 2),
+            content: Text(
+              provider.errorMessage ?? 'Failed to add to cart',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            duration: const Duration(seconds: 2),
             action: SnackBarAction(
               label: 'OK',
+              textColor: Theme.of(context).colorScheme.secondary, // Forest Green
               onPressed: () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
               },
