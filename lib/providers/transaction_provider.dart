@@ -12,6 +12,8 @@ class TransactionProvider with ChangeNotifier {
   String _paymentMethod = 'Cash';
   bool _cashEnabled = true;
   bool _cardEnabled = false;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   List<Product> get products => _products;
   List<Map<String, dynamic>> get cart => _cart;
@@ -19,6 +21,8 @@ class TransactionProvider with ChangeNotifier {
   bool get cashEnabled => _cashEnabled;
   bool get cardEnabled => _cardEnabled;
   String get paymentMethod => _paymentMethod;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   TransactionProvider() {
     _loadProducts();
@@ -26,15 +30,31 @@ class TransactionProvider with ChangeNotifier {
   }
 
   Future<void> _loadProducts() async {
-    _products = await _dbService.getProducts();
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _products = await _dbService.getProducts();
+      _isLoading = false;
+    } catch (e) {
+      _errorMessage = 'Failed to load products: $e';
+      _isLoading = false;
+      _products = [];
+    }
     notifyListeners();
   }
 
   Future<void> _loadSettings() async {
-    final settings = await _dbService.getSettings();
-    _cashEnabled = settings['cash_enabled'] == 1;
-    _cardEnabled = settings['card_enabled'] == 1;
-    print('Loaded settings - Cash: $_cashEnabled, Card: $_cardEnabled');
+    try {
+      final settings = await _dbService.getSettings();
+      _cashEnabled = settings['cash_enabled'] == 1;
+      _cardEnabled = settings['card_enabled'] == 1;
+    } catch (e) {
+      _errorMessage = 'Failed to load settings: $e';
+      _cashEnabled = true;
+      _cardEnabled = false;
+    }
     notifyListeners();
   }
 
@@ -53,11 +73,23 @@ class TransactionProvider with ChangeNotifier {
   }
 
   bool addToCart(Product product, int quantity) {
-    final existingItemIndex = _cart.indexWhere((item) => item['product'].id == product.id);
-    final currentQuantity = existingItemIndex >= 0 ? _cart[existingItemIndex]['quantity'] : 0;
+    if (quantity <= 0) {
+      _errorMessage = 'Quantity must be greater than 0';
+      notifyListeners();
+      return false;
+    }
+
+    final existingItemIndex = _cart.indexWhere(
+          (item) => item['product'].id == product.id,
+    );
+    final currentQuantity =
+    existingItemIndex >= 0 ? _cart[existingItemIndex]['quantity'] : 0;
     final totalRequestedQuantity = currentQuantity + quantity;
 
     if (totalRequestedQuantity > product.stock) {
+      _errorMessage =
+      'Not enough stock for ${product.name} (Available: ${product.stock})';
+      notifyListeners();
       return false;
     }
 
@@ -67,54 +99,79 @@ class TransactionProvider with ChangeNotifier {
       _cart.add({'product': product, 'quantity': quantity});
     }
     _total += product.price * quantity;
+    _errorMessage = null;
     notifyListeners();
     return true;
   }
 
   void removeFromCart(int index) {
-    final item = _cart[index];
-    _total -= item['product'].price * item['quantity'];
-    _cart.removeAt(index);
-    notifyListeners();
+    if (index >= 0 && index < _cart.length) {
+      final item = _cart[index];
+      _total -= item['product'].price * item['quantity'];
+      _cart.removeAt(index);
+      _errorMessage = null;
+      notifyListeners();
+    }
   }
 
   void setPaymentMethod(String method) {
     _paymentMethod = method;
+    _errorMessage = null;
     notifyListeners();
   }
 
   Future<Map<String, dynamic>> completeTransaction(BuildContext context) async {
-    if (_cart.isEmpty) return {'transactionId': -1, 'total': 0.0, 'cart': [], 'paymentMethod': _paymentMethod};
-
-    final transactionId = await _dbService.insertTransaction(_total, _paymentMethod);
-    for (var item in _cart) {
-      await _dbService.insertTransactionItem(
-        transactionId,
-        item['product'].id,
-        item['quantity'],
-        item['product'].price,
-      );
-      await _dbService.updateProductStock(
-        item['product'].id,
-        item['product'].stock - item['quantity'],
-      );
+    if (_cart.isEmpty) {
+      _errorMessage = 'Cart is empty';
+      notifyListeners();
+      return {
+        'transactionId': -1,
+        'total': 0.0,
+        'cart': [],
+        'paymentMethod': _paymentMethod,
+      };
     }
 
-    final transactionDetails = {
-      'transactionId': transactionId,
-      'total': _total,
-      'cart': List<Map<String, dynamic>>.from(_cart),
-      'paymentMethod': _paymentMethod,
-    };
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
-    _cart.clear();
-    _total = 0.0;
-    await _loadProducts();
-    
-    // Refresh InventoryProvider using public method
-    final inventoryProvider = Provider.of<InventoryProvider>(context, listen: false);
-    await inventoryProvider.refreshProducts(); // Updated to use public method
+    try {
+      // Use the updated insertTransaction method from DatabaseService
+      final transactionDetails = await _dbService.insertTransaction(
+        _total,
+        _paymentMethod,
+        _cart,
+      );
 
-    return transactionDetails;
+      _cart.clear();
+      _total = 0.0;
+      await _loadProducts();
+
+      final inventoryProvider = Provider.of<InventoryProvider>(
+        context,
+        listen: false,
+      );
+      await inventoryProvider.refreshProducts();
+
+      _isLoading = false;
+      notifyListeners();
+      return transactionDetails;
+    } catch (e) {
+      _errorMessage = 'Transaction failed: $e';
+      _isLoading = false;
+      notifyListeners();
+      return {
+        'transactionId': -1,
+        'total': 0.0,
+        'cart': [],
+        'paymentMethod': _paymentMethod,
+      };
+    }
+  }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
   }
 }

@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   sqflite: ^2.3.0          # SQLite database support
+  crypto: ^3.0.3  # For password hashing
+  google_fonts: ^6.1.0
   sqflite_common_ffi: ^2.3.0  # FFI support for desktop SQLite
   path: ^1.8.3            # Path manipulation
   path_provider: ^2.0.11  # Directory access for database storage

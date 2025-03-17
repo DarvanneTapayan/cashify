@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 
@@ -16,16 +17,14 @@ class _PaymentProcessingWidgetState extends State<PaymentProcessingWidget> {
   Widget build(BuildContext context) {
     return Consumer<TransactionProvider>(
       builder: (context, transactionProvider, child) {
-        // Filter available payment methods
         final availableMethods = <String>[];
         if (transactionProvider.cashEnabled) availableMethods.add('Cash');
         if (transactionProvider.cardEnabled) availableMethods.add('Card');
 
-        // Default to first available method or null if none
         String? initialValue = availableMethods.isNotEmpty
             ? (availableMethods.contains(transactionProvider.paymentMethod)
-                ? transactionProvider.paymentMethod
-                : availableMethods.first)
+            ? transactionProvider.paymentMethod
+            : availableMethods.first)
             : null;
 
         return Padding(
@@ -33,20 +32,29 @@ class _PaymentProcessingWidgetState extends State<PaymentProcessingWidget> {
           child: Column(
             children: [
               if (availableMethods.isEmpty)
-                const Text('No payment methods enabled', style: TextStyle(color: Colors.red))
+                Text(
+                  'No payment methods enabled',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(color: const Color(0xFFA8200D)), // Sentiment Negative
+                )
               else
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0), // Inner padding
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 2.0), // Blue border
-                    borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.secondary, // Forest Green
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: DropdownButton<String>(
                     value: initialValue,
                     items: availableMethods.map((method) {
                       return DropdownMenuItem<String>(
                         value: method,
-                        child: Text(method),
+                        child: Text(method, style: Theme.of(context).textTheme.bodyMedium),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -54,20 +62,31 @@ class _PaymentProcessingWidgetState extends State<PaymentProcessingWidget> {
                         transactionProvider.setPaymentMethod(value);
                       }
                     },
-                    underline: const SizedBox.shrink(), // Remove default underline
-                    isExpanded: true, // Expand to fill container width
+                    underline: const SizedBox.shrink(),
+                    isExpanded: true,
+                    dropdownColor: Theme.of(context).colorScheme.surface, // Lighter Base Dark
                   ),
                 ),
               const SizedBox(height: 8.0),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: availableMethods.isEmpty || transactionProvider.isLoading
+                      ? null
+                      : widget.onComplete,
+                  child: transactionProvider.isLoading
+                      ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF163300), // Forest Green
+                    ),
+                  )
+                      : Text(
+                    'Complete Transaction',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ),
-                onPressed: availableMethods.isEmpty ? null : widget.onComplete,
-                child: const Text('Complete Transaction', style: TextStyle(fontSize: 16.0)),
               ),
             ],
           ),
