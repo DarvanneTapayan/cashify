@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'transaction_screen.dart';
 import 'inventory_management_screen.dart';
 import 'sales_report_screen.dart';

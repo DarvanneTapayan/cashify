@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/product_model.dart';
 import '../providers/transaction_provider.dart';
-import '../widgets/product_selection_widget.dart';
-import '../widgets/cart_review_widget.dart';
-import '../widgets/payment_processing_widget.dart';
-import '../widgets/receipt_widget.dart';
 
 class TransactionScreen extends StatefulWidget {
   const TransactionScreen({super.key});
@@ -18,8 +13,8 @@ class TransactionScreen extends StatefulWidget {
 class _TransactionScreenState extends State<TransactionScreen> {
   final TextEditingController _cashController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  String _sortOption = 'name_asc';
+  final String _searchQuery = '';
+  final String _sortOption = 'name_asc';
 
   @override
   void dispose() {

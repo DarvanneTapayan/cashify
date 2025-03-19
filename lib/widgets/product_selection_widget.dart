@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../models/product_model.dart';
@@ -17,7 +16,9 @@ class _ProductSelectionWidgetState extends State<ProductSelectionWidget> {
 
   @override
   void dispose() {
-    _quantityControllers.values.forEach((controller) => controller.dispose());
+    for (var controller in _quantityControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 

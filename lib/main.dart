@@ -73,12 +73,10 @@ class _MyAppState extends State<MyApp> {
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF9FE870),
           secondary: Color(0xFF163300),
-          surface: Color(0xFF1E231F), // Lighter Base Dark for containers
-          background: Color(0xFF121511), // Base Dark
+          surface: Color(0xFF1E231F), // Base Dark
           onPrimary: Color(0xFF163300),
           onSecondary: Color(0xFFFFFFFF),
           onSurface: Color(0xFFFFFFFF),
-          onBackground: Color(0xFFFFFFFF),
         ),
         textTheme: TextTheme(
           displayLarge: GoogleFonts.inter(

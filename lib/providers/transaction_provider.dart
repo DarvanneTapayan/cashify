@@ -7,7 +7,7 @@ import 'inventory_provider.dart';
 class TransactionProvider with ChangeNotifier {
   final DatabaseService _dbService = DatabaseService();
   List<Product> _products = [];
-  List<Map<String, dynamic>> _cart = [];
+  final List<Map<String, dynamic>> _cart = [];
   double _total = 0.0;
   String _paymentMethod = 'Cash';
   bool _cashEnabled = true;
